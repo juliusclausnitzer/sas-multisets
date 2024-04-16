@@ -239,7 +239,7 @@ class SASSubsetDataset(BaseSubsetDataset):
     ):
         """
         dataset: Dataset
-            Original dataset for contrastive learning. Assumes that dataset[i] returns a list of augmented views of the original example i.
+            Original dataset
 
         subset_fraction: float
             Fractional size of subset.
