@@ -13,12 +13,22 @@ from torch.distributed import destroy_process_group, init_process_group
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 import wandb
+from torchvision import transforms
 
 from configs import SupportedDatasets, get_datasets
 from projection_heads.critic import LinearCritic
 from resnet import *
 from trainer import Trainer
 from util import Random
+
+class ProxyModel(nn.Module):
+    def __init__(self, net, critic):
+        super().__init__()
+        self.net = net
+        self.critic = critic
+    def forward(self, x):
+        return self.critic.project(self.net(x))
+
 
 def main(rank: int, world_size: int, args):
 
@@ -157,6 +167,47 @@ def main(rank: int, world_size: int, args):
 
     for epoch in range(0, args.num_epochs):
         print(f"step: {epoch}")
+
+
+        ##############################################################
+        # Step 2: Find New Subset Using "find_sas_subset"
+        ##############################################################
+        proxy_model = ProxyModel(net, critic)
+        
+        subset_dataset = SASSubsetDataset(
+            dataset=datasets.trainsets,
+            subset_fraction=0.2,
+            num_downstream_classes=100,
+            device=device,
+            proxy_model=proxy_model,
+            approx_latent_class_partition=partition,
+            verbose=True
+        )
+
+        trainset = sas.subset_dataset.CustomSubsetDataset(
+            dataset=datasets.trainset,
+            subset_indices=subset_dataset.subset_indices
+        )
+
+        ##############################################################
+        # Step 3: Reinitialize DataLoader with New Subset
+        ##############################################################
+        trainloader = torch.utils.data.DataLoader(
+            dataset=trainset,
+            batch_size=args.batch_size,
+            shuffle=(not args.distributed),
+            sampler=DistributedSampler(trainset, shuffle=True, num_replicas=world_size, rank=rank, drop_last=True) if args.distributed else None,
+            num_workers=4,
+            pin_memory=True,
+        )
+
+        # Update trainer's trainloader with the new one
+        trainer.trainloader = trainloader
+
+        ##############################################################
+        # Step 4: Train and Log
+        ##############################################################
+        net.train()  # Switch back to training mode
 
         train_loss = trainer.train()
         print(f"train_loss: {train_loss}")
