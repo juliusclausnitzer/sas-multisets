@@ -5,7 +5,7 @@ from datetime import datetime
 import random
 
 import numpy as np
-import sas.subset_dataset
+from sas.subset_dataset import SASSubsetDataset
 import torch
 import torch.multiprocessing as mp
 import torch.optim as optim
