@@ -5,7 +5,7 @@ from datetime import datetime
 import random
 
 import numpy as np
-from sas.subset_dataset import SASSubsetDataset
+import sas.subset_dataset
 import torch
 import torch.multiprocessing as mp
 import torch.optim as optim
@@ -175,7 +175,7 @@ def main(rank: int, world_size: int, args):
         proxy_model = ProxyModel(net, critic)
         
         subset_dataset = SASSubsetDataset(
-            dataset=datasets.trainsets,
+            dataset=datasets.trainset,
             subset_fraction=0.2,
             num_downstream_classes=100,
             device=device,
@@ -183,7 +183,7 @@ def main(rank: int, world_size: int, args):
             approx_latent_class_partition=partition,
             verbose=True
         )
-
+                
         trainset = sas.subset_dataset.CustomSubsetDataset(
             dataset=datasets.trainset,
             subset_indices=subset_dataset.subset_indices
