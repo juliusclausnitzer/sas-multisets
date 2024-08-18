@@ -174,7 +174,7 @@ def main(rank: int, world_size: int, args):
         ##############################################################
         proxy_model = ProxyModel(net, critic)
         
-        subset_dataset = SASSubsetDataset(
+        subset_dataset = sas.subset_dataset.SASSubsetDataset(
             dataset=datasets.trainset,
             subset_fraction=0.2,
             num_downstream_classes=100,
