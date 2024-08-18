@@ -5,7 +5,8 @@ from datetime import datetime
 import random
 
 import numpy as np
-import sas.subset_dataset
+import sas
+from sas.approx_latent_classes import clip_approx
 import torch
 import torch.multiprocessing as mp
 import torch.optim as optim
@@ -173,7 +174,18 @@ def main(rank: int, world_size: int, args):
         # Step 2: Find New Subset Using "find_sas_subset"
         ##############################################################
         proxy_model = ProxyModel(net, critic)
-        
+
+        rand_labeled_examples_indices = random.sample(range(len(datasets.trainset)), 500)
+        rand_labeled_examples_labels = [datasets.trainset[i][1] for i in rand_labeled_examples_indices]
+
+        partition = clip_approx(
+            img_trainset=datasets.trainset,
+            labeled_example_indices=rand_labeled_examples_indices, 
+            labeled_examples_labels=rand_labeled_examples_labels,
+            num_classes=100,
+            device=device
+        )
+                
         subset_dataset = sas.subset_dataset.SASSubsetDataset(
             dataset=datasets.trainset,
             subset_fraction=0.2,
