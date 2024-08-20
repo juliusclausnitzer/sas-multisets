@@ -90,6 +90,30 @@ class CIFAR100Augment(CIFAR10Augment):
         'md5': '7973b15100ade9c7d40fb424638fde48',
     }
 
+class MNISTAugment(torchvision.datasets.MNIST):
+    def __init__(self, root: str, transform=Callable, n_augmentations: int = 2, train: bool = True, download: bool = False):
+        super().__init__(
+            root=root,
+            train=train,
+            transform=transform,
+            download=download
+        )
+        self.n_augmentations = n_augmentations
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            List of augmented views of element at index
+        """
+        img, target = super().__getitem__(index)
+        imgs = []
+        for _ in range(self.n_augmentations):
+            imgs.append(self.transform(img))
+        return imgs, target
+
 
 class ImageFolderAugment(ImageFolder):
     def __init__(self, root: str, transform=Callable, n_augmentations: int = 2):

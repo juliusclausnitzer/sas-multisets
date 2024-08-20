@@ -15,6 +15,7 @@ class SupportedDatasets(Enum):
     TINY_IMAGENET = "tiny_imagenet"
     IMAGENET = "imagenet"
     STL10 = "stl10"
+    MNIST = "mnist"
 
 Datasets = namedtuple('Datasets', 'trainset testset clftrainset num_classes stem')
 
@@ -25,7 +26,8 @@ def get_datasets(dataset: str, augment_clf_train=False, add_indices_to_data=Fals
         SupportedDatasets.CIFAR100.value: ((0.5071, 0.4865, 0.4409), (0.2009, 0.1984, 0.2023)),
         SupportedDatasets.STL10.value: ((0.4409, 0.4279, 0.3868), (0.2309, 0.2262, 0.2237)),
         SupportedDatasets.TINY_IMAGENET.value: ((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-        SupportedDatasets.IMAGENET.value: ((0.485, 0.456, 0.3868), (0.2309, 0.2262, 0.2237))
+        SupportedDatasets.IMAGENET.value: ((0.485, 0.456, 0.3868), (0.2309, 0.2262, 0.2237)),
+        SupportedDatasets.MNIST.value: ((0.1307,), (0.3081,))
     }
 
     PATHS = {
@@ -33,7 +35,8 @@ def get_datasets(dataset: str, augment_clf_train=False, add_indices_to_data=Fals
         SupportedDatasets.CIFAR100.value: '/data/cifar100/',
         SupportedDatasets.STL10.value: '/data/stl10/',
         SupportedDatasets.TINY_IMAGENET.value: '/data/tiny_imagenet/',
-        SupportedDatasets.IMAGENET.value: '/data/ILSVRC/'
+        SupportedDatasets.IMAGENET.value: '/data/ILSVRC/',
+        SupportedDatasets.MNIST.value: '/data/mnist/'
     }
 
     try:
@@ -51,6 +54,8 @@ def get_datasets(dataset: str, augment_clf_train=False, add_indices_to_data=Fals
         img_size = 224
     elif dataset == SupportedDatasets.TINY_IMAGENET.value:
        img_size = 64
+    elif dataset == SupportedDatasets.MNIST.value:
+        img_size = 28 
     else:
         img_size = 32
 
@@ -145,5 +150,11 @@ def get_datasets(dataset: str, augment_clf_train=False, add_indices_to_data=Fals
         testset = ImageNet(root=f"{root}test/", transform=transform_clftrain)     
         num_classes = 1000
         stem = StemImageNet
+
+    elif dataset == SupportedDatasets.MNIST.value:
+        trainset = MNISTAugment(root="./data", train=True, transform=transform_train, download=True)
+        testset = torchvision.datasets.MNIST(root="./data", train=False, transform=transform_test, download=True)
+        clftrainset = torchvision.datasets.MNIST(root="./data", train=True, transform=transform_clftrain, download=True)
+        num_classes = 10
 
     return Datasets(trainset=trainset, testset=testset, clftrainset=clftrainset, num_classes=num_classes, stem=stem)
