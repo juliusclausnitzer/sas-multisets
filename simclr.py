@@ -178,6 +178,7 @@ def main(rank: int, world_size: int, args):
         rand_labeled_examples_indices = random.sample(range(len(datasets.trainset)), 500)
         rand_labeled_examples_labels = [datasets.trainset[i][1] for i in rand_labeled_examples_indices]
 
+        print("clip_approx start.")
         partition = clip_approx(
             img_trainset=datasets.trainset,
             labeled_example_indices=rand_labeled_examples_indices, 
@@ -185,6 +186,7 @@ def main(rank: int, world_size: int, args):
             num_classes=100,
             device=device
         )
+        print("clip_approx end.")
                 
         subset_dataset = sas.subset_dataset.SASSubsetDataset(
             dataset=datasets.trainset,
