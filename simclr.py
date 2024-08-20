@@ -41,6 +41,7 @@ def main(rank: int, world_size: int, args):
         args.lr *= world_size
 
     # WandB Logging
+    os.environ['WANDB_MODE'] = 'offline'
     if not args.distributed or rank == 0:
         wandb.init(
             project="data-efficient-contrastive-learning",
@@ -179,6 +180,7 @@ def main(rank: int, world_size: int, args):
         rand_labeled_examples_labels = [datasets.trainset[i][1] for i in rand_labeled_examples_indices]
 
         print("clip_approx start.")
+        print(type(datasets.trainset))
         partition = clip_approx(
             img_trainset=datasets.trainset,
             labeled_example_indices=rand_labeled_examples_indices, 
