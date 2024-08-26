@@ -24,6 +24,9 @@ def clip_approx(
         batch_size=batch_size,
         verbose=verbose
     )
+    print(labeled_examples_labels)
+    print(type(labeled_examples_labels))
+
     clf = train_linear_classifier(
         X=Z[labeled_example_indices], 
         y=torch.tensor(labeled_examples_labels), 
