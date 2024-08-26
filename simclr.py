@@ -15,6 +15,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 import wandb
 from torchvision import transforms
+import torchvision
 
 from configs import SupportedDatasets, get_datasets
 from projection_heads.critic import LinearCritic
@@ -167,6 +168,8 @@ def main(rank: int, world_size: int, args):
         optimizer=optimizer,
     )
 
+    cifar100 = torchvision.datasets.CIFAR100("/data/cifar100/", transform=transforms.ToTensor())
+
     for epoch in range(0, args.num_epochs):
         print(f"step: {epoch}")
 
@@ -176,13 +179,13 @@ def main(rank: int, world_size: int, args):
         ##############################################################
         proxy_model = ProxyModel(net, critic)
 
-        rand_labeled_examples_indices = random.sample(range(len(datasets.trainset)), 500)
-        rand_labeled_examples_labels = [datasets.trainset[i][1] for i in rand_labeled_examples_indices]
+        rand_labeled_examples_indices = random.sample(range(len(cifar100)), 500)
+        rand_labeled_examples_labels = [cifar100[i][1] for i in rand_labeled_examples_indices]
 
         print("clip_approx start.")
-        print(type(datasets.trainset))
+        
         partition = clip_approx(
-            img_trainset=datasets.trainset,
+            img_trainset=cifar100,
             labeled_example_indices=rand_labeled_examples_indices, 
             labeled_examples_labels=rand_labeled_examples_labels,
             num_classes=100,
@@ -191,7 +194,7 @@ def main(rank: int, world_size: int, args):
         print("clip_approx end.")
                 
         subset_dataset = sas.subset_dataset.SASSubsetDataset(
-            dataset=datasets.trainset,
+            dataset=cifar100,
             subset_fraction=0.2,
             num_downstream_classes=100,
             device=device,
