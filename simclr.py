@@ -171,6 +171,20 @@ def main(rank: int, world_size: int, args):
 
     cifar100 = torchvision.datasets.CIFAR100("/data/cifar100/", transform=transforms.ToTensor())
 
+    rand_labeled_examples_indices = random.sample(range(len(cifar100)), 500)
+    rand_labeled_examples_labels = [cifar100[i][1] for i in rand_labeled_examples_indices]
+
+    print("clip_approx start.")
+    partition = clip_approx(
+        img_trainset=cifar100,
+        labeled_example_indices=rand_labeled_examples_indices, 
+        labeled_examples_labels=rand_labeled_examples_labels,
+        num_classes=100,
+        device=device,
+        batch_size = 128
+    )
+    print("clip_approx end.")
+
     for epoch in range(0, args.num_epochs):
         print(f"step: {epoch}")
 
@@ -179,21 +193,6 @@ def main(rank: int, world_size: int, args):
         # Step 2: Find New Subset Using "find_sas_subset"
         ##############################################################
         proxy_model = ProxyModel(net, critic)
-
-        rand_labeled_examples_indices = random.sample(range(len(cifar100)), 500)
-        rand_labeled_examples_labels = [cifar100[i][1] for i in rand_labeled_examples_indices]
-
-        print("clip_approx start.")
-        
-        partition = clip_approx(
-            img_trainset=cifar100,
-            labeled_example_indices=rand_labeled_examples_indices, 
-            labeled_examples_labels=rand_labeled_examples_labels,
-            num_classes=100,
-            device=device,
-            batch_size = 128
-        )
-        print("clip_approx end.")
                 
         subset_dataset = SASSubsetDataset(
             dataset=cifar100,
