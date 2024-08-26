@@ -120,7 +120,7 @@ def main(rank: int, world_size: int, args):
         batch_size=args.batch_size,
         shuffle=(not args.distributed),
         sampler=DistributedSampler(trainset, shuffle=True, num_replicas=world_size, rank=rank, drop_last=True) if args.distributed else None,
-        num_workers=8,  #originally 4
+        num_workers=4, 
         pin_memory=True,
     )
 
@@ -171,8 +171,11 @@ def main(rank: int, world_size: int, args):
 
     cifar100 = torchvision.datasets.CIFAR100("/data/cifar100/", transform=transforms.ToTensor())
 
-    rand_labeled_examples_indices = random.sample(range(len(datasets.trainset)), 500)
-    rand_labeled_examples_labels = [datasets.trainset[i][1] for i in rand_labeled_examples_indices]
+    rand_labeled_examples_indices = random.sample(range(len(cifar100)), 500)
+    rand_labeled_examples_labels = [cifar100[i][1] for i in rand_labeled_examples_indices]
+    
+    print(rand_labeled_examples_labels)
+    print(type(rand_labeled_examples_labels))
 
     print("clip_approx start.")
     partition = clip_approx(
