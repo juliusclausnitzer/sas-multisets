@@ -195,7 +195,7 @@ def main(rank: int, world_size: int, args):
         )
         print("clip_approx end.")
                 
-        subset_dataset = sas.subset_dataset.SASSubsetDataset(
+        subset_dataset = SASSubsetDataset(
             dataset=cifar100,
             subset_fraction=0.2,
             num_downstream_classes=100,
@@ -205,7 +205,7 @@ def main(rank: int, world_size: int, args):
             verbose=True
         )
                 
-        trainset = sas.subset_dataset.CustomSubsetDataset(
+        trainset = CustomSubsetDataset(
             dataset=datasets.trainset,
             subset_indices=subset_dataset.subset_indices
         )
