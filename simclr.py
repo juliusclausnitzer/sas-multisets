@@ -7,6 +7,7 @@ import random
 import numpy as np
 import sas
 from sas.approx_latent_classes import clip_approx
+from sas.subset_dataset import SASSubsetDataset, CustomSubsetDataset
 import torch
 import torch.multiprocessing as mp
 import torch.optim as optim
