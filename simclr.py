@@ -173,9 +173,9 @@ def main(rank: int, world_size: int, args):
 
     rand_labeled_examples_indices = random.sample(range(len(datasets.trainset)), 500)
     rand_labeled_examples_labels = [datasets.trainset[i][1] for i in rand_labeled_examples_indices]
-    
+
+    print(type(datasets.trainset))
     print(len(datasets.trainset))
-    print(rand_labeled_examples_labels)
     print(type(rand_labeled_examples_labels))
 
     print("clip_approx start.")
