@@ -101,7 +101,7 @@ def encode_using_clip(
     img_trainset = deepcopy(img_trainset)
     img_trainset.transform = preprocess
 
-    loader = torch.utils.data.DataLoader(img_trainset, batch_size=batch_size, num_workers=8)
+    loader = torch.utils.data.DataLoader(img_trainset, batch_size=batch_size, num_workers=2)
     Z = []
     with torch.no_grad():
         for input in tqdm(loader, desc="Encoding images using CLIP", disable=not verbose):

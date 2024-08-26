@@ -189,7 +189,8 @@ def main(rank: int, world_size: int, args):
             labeled_example_indices=rand_labeled_examples_indices, 
             labeled_examples_labels=rand_labeled_examples_labels,
             num_classes=100,
-            device=device
+            device=device,
+            batch_size = 128
         )
         print("clip_approx end.")
                 
