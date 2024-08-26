@@ -32,6 +32,9 @@ class CIFAR10Augment(torchvision.datasets.CIFAR10):
         for _ in range(self.n_augmentations):
             imgs.append(self.transform(pil_img))
         return imgs
+    
+    def get_img_and_label(self, index):
+        return super().__getitem__(index)
 
 class STL10Augment(torchvision.datasets.STL10):
     def __init__(
