@@ -190,6 +190,8 @@ def main(rank: int, world_size: int, args):
         print(f"step: {epoch}")
 
         if epoch % 5 == 0:
+
+            print("Selecting new subset.")
             net.eval()
 
             ##############################################################
@@ -232,7 +234,7 @@ def main(rank: int, world_size: int, args):
             ##############################################################
             net.train()  # Switch back to training mode
 
-            
+
 
         train_loss = trainer.train()
         print(f"train_loss: {train_loss}")
