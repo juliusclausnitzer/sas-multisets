@@ -206,7 +206,7 @@ def main(rank: int, world_size: int, args):
                 device=device,
                 proxy_model=proxy_model,
                 approx_latent_class_partition=partition,
-                verbose=True
+                verbose=False
             )
                     
             trainset = CustomSubsetDataset(
