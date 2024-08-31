@@ -186,9 +186,9 @@ def main(rank: int, world_size: int, args):
     )
     print("clip_approx end.")
 
-    net = torch.load("proxy-cifar100-resnet10-399-net.pt")
-    critic = torch.load("proxy-cifar100-resnet10-399-critic.pt")
-    proxy_model = ProxyModel(net, critic)
+    sas_net = torch.load("proxy-cifar100-resnet10-399-net.pt")
+    sas_critic = torch.load("proxy-cifar100-resnet10-399-critic.pt")
+    proxy_model = ProxyModel(sas_net, sas_critic)
 
     print("Selecting new subset.")
             
