@@ -222,6 +222,7 @@ def main(rank: int, world_size: int, args):
     # Update trainer's trainloader with the new one
     trainer.trainloader = trainloader
 
+    print("Performed Standard SAS. Now training CLR.")
 
     for epoch in range(0, args.num_epochs):
         print(f"step: {epoch}")
