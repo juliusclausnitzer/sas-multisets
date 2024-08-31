@@ -186,54 +186,45 @@ def main(rank: int, world_size: int, args):
     )
     print("clip_approx end.")
 
+    net = torch.load("proxy-cifar100-resnet10-399-net.pt")
+    critic = torch.load("proxy-cifar100-resnet10-399-critic.pt")
+    proxy_model = ProxyModel(net, critic)
+
+    print("Selecting new subset.")
+            
+    subset_dataset = SASSubsetDataset(
+        dataset=cifar100,
+        subset_fraction=0.2,
+        num_downstream_classes=100,
+        device=device,
+        proxy_model=proxy_model,
+        approx_latent_class_partition=partition,
+        verbose=False
+    )
+            
+    trainset = CustomSubsetDataset(
+        dataset=datasets.trainset,
+        subset_indices=subset_dataset.subset_indices
+    )
+
+    ##############################################################
+    # Step 3: Reinitialize DataLoader with New Subset
+    ##############################################################
+    trainloader = torch.utils.data.DataLoader(
+        dataset=trainset,
+        batch_size=args.batch_size,
+        shuffle=(not args.distributed),
+        sampler=DistributedSampler(trainset, shuffle=True, num_replicas=world_size, rank=rank, drop_last=True) if args.distributed else None,
+        num_workers=4,
+        pin_memory=True,
+    )
+
+    # Update trainer's trainloader with the new one
+    trainer.trainloader = trainloader
+
+
     for epoch in range(0, args.num_epochs):
         print(f"step: {epoch}")
-
-        if epoch % 5 == 0:
-
-            print("Selecting new subset.")
-            net.eval()
-
-            ##############################################################
-            # Step 2: Find New Subset
-            ##############################################################
-            proxy_model = ProxyModel(net, critic)
-                    
-            subset_dataset = SASSubsetDataset(
-                dataset=cifar100,
-                subset_fraction=0.2,
-                num_downstream_classes=100,
-                device=device,
-                proxy_model=proxy_model,
-                approx_latent_class_partition=partition,
-                verbose=False
-            )
-                    
-            trainset = CustomSubsetDataset(
-                dataset=datasets.trainset,
-                subset_indices=subset_dataset.subset_indices
-            )
-
-            ##############################################################
-            # Step 3: Reinitialize DataLoader with New Subset
-            ##############################################################
-            trainloader = torch.utils.data.DataLoader(
-                dataset=trainset,
-                batch_size=args.batch_size,
-                shuffle=(not args.distributed),
-                sampler=DistributedSampler(trainset, shuffle=True, num_replicas=world_size, rank=rank, drop_last=True) if args.distributed else None,
-                num_workers=4,
-                pin_memory=True,
-            )
-
-            # Update trainer's trainloader with the new one
-            trainer.trainloader = trainloader
-
-            ##############################################################
-            # Step 4: Train and Log
-            ##############################################################
-            net.train()  # Switch back to training mode
-
 
 
         train_loss = trainer.train()
