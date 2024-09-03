@@ -169,15 +169,15 @@ def main(rank: int, world_size: int, args):
         optimizer=optimizer,
     )
 
-    data = torchvision.datasets.STL10("/data/stl10/", transform=transforms.ToTensor())
+    cifar100 = torchvision.datasets.CIFAR100("/data/cifar100/", transform=transforms.ToTensor())
 
-    rand_labeled_examples_indices = random.sample(range(len(data)), 500)
-    rand_labeled_examples_labels = [data[i][1] for i in rand_labeled_examples_indices]
+    rand_labeled_examples_indices = random.sample(range(len(cifar100)), 500)
+    rand_labeled_examples_labels = [cifar100[i][1] for i in rand_labeled_examples_indices]
 
 
     print("clip_approx start.")
     partition = clip_approx(
-        img_trainset=data,
+        img_trainset=cifar100,
         labeled_example_indices=rand_labeled_examples_indices, 
         labeled_examples_labels=rand_labeled_examples_labels,
         num_classes=100,
@@ -200,8 +200,8 @@ def main(rank: int, world_size: int, args):
             proxy_model = ProxyModel(net, critic)
                     
             subset_dataset = SASSubsetDataset(
-                dataset=data,
-                subset_fraction=0.2,
+                dataset=cifar100,
+                subset_fraction=0.4,
                 num_downstream_classes=100,
                 device=device,
                 proxy_model=proxy_model,
