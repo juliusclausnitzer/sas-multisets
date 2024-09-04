@@ -201,7 +201,7 @@ def main(rank: int, world_size: int, args):
                     
             subset_dataset = SASSubsetDataset(
                 dataset=cifar100,
-                subset_fraction=0.4,
+                subset_fraction=0.6,
                 num_downstream_classes=100,
                 device=device,
                 proxy_model=proxy_model,
