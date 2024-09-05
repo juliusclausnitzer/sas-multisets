@@ -98,6 +98,8 @@ def main(rank: int, world_size: int, args):
         net = ResNet50(stem=datasets.stem)
     else:
         raise ValueError("Bad architecture specification")
+    
+    print(args.arch)
 
     ##############################################################
     # Critic
